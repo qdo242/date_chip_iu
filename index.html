@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#fef0f4">
-    <title>💖 Will You Be My Date? 💖</title>
+    <title>💖 Chip n Quan di date eheh 💖</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap');
@@ -344,7 +344,7 @@
 <div class="page active" id="page1">
     <div class="card">
         <div class="illust" id="illust1"></div>
-        <div class="card-title">Hey My Love!</div>
+        <div class="card-title">Hi Chip iu!</div>
         <div class="card-subtitle">I've been wanting to tell you something...</div>
         <div class="card-msg">
             Since the day we met, I can't stop thinking about you 😊<br>
@@ -352,8 +352,8 @@
         </div>
         <div class="card-question"><span class="blink-heart">💖</span> Will you go on a date with me? <span class="blink-heart">💖</span></div>
         <div class="btn-row">
-            <button class="btn btn-pink" id="btnYes" onclick="goPage(2)">Yes! 💕</button>
-            <button class="btn btn-no" id="btnNo" onmouseenter="runAway()" ontouchstart="runAway()" onclick="runAway()">No 😢</button>
+            <button class="btn btn-pink" id="btnYes" onclick="yesGate(event)">Yes! 💕</button>
+            <button class="btn btn-no" id="btnNo" onmouseenter="runAway()" ontouchstart="runAway(event)" onclick="runAway(event)">No 😢</button>
         </div>
     </div>
 </div>
@@ -410,7 +410,7 @@
         <div class="premium-lock">🔒</div>
         <div class="premium-title">Oops! Premium Required</div>
         <div class="premium-desc">To confirm this date, you need to unlock the <strong>Premium Girlfriend Package™</strong></div>
-        <div class="premium-price">$99.99</div>
+        <div class="premium-price">$999.99</div>
         <div class="premium-price-note">one-time payment, no refund 🙃</div>
         <ul class="premium-features">
             <li>Unlimited cute messages</li>
@@ -645,7 +645,18 @@
         "Yes and I'll buy you gifts 🎁","I'll cry! 😭",
         "Don't break my heart 💔","Yes = free food! 🍕"
     ];
-    function runAway() {
+    let noTouching = false;
+    function yesGate(e) {
+        if (noTouching) return;
+        goPage(2);
+    }
+    function runAway(e) {
+        if (e && e.type === 'touchstart') {
+            e.preventDefault();
+            noTouching = true;
+            setTimeout(() => { noTouching = false; }, 400);
+        }
+        if (e && e.type === 'click' && noTouching) return;
         const btn = document.getElementById('btnNo');
         const card = btn.closest('.card');
         const r = card.getBoundingClientRect();
