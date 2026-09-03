@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#fef0f4">
+    <title>💖 Will You Be My Date? 💖</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: #fef0f4;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255,182,193,0.25) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,218,233,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(255,192,203,0.2) 0%, transparent 50%);
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .bg-deco { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden; }
+        .bg-deco span { position:absolute;font-size:22px;opacity:0.35;animation:floatUp linear infinite; }
+        @keyframes floatUp {
+            0%   { transform:translateY(105vh) rotate(0); opacity:0; }
+            8%   { opacity:0.35; }
+            92%  { opacity:0.35; }
+            100% { transform:translateY(-8vh) rotate(540deg); opacity:0; }
+        }
+
+        .page {
+            display:none;position:relative;z-index:10;min-height:100vh;
+            justify-content:center;align-items:center;padding:30px 20px;flex-direction:column;
+        }
+        .page.active { display:flex;animation:pageIn 0.6s ease; }
+        @keyframes pageIn {
+            0%   { opacity:0;transform:translateY(40px) scale(0.96); }
+            100% { opacity:1;transform:translateY(0) scale(1); }
+        }
+
+        .card {
+            background:#fff;border-radius:28px;padding:45px 38px;text-align:center;
+            box-shadow:0 8px 40px rgba(219,112,147,0.15),0 1px 3px rgba(0,0,0,0.04);
+            max-width:520px;width:100%;position:relative;
+        }
+        .card-title { font-family:'Pacifico',cursive;font-size:30px;color:#d4638a;margin-bottom:8px; }
+        .card-subtitle { font-size:16px;color:#b0738c;margin-bottom:6px;font-weight:600; }
+        .card-msg { font-size:15px;color:#c4a0b0;margin-bottom:28px;line-height:1.7; }
+        .card-question { font-size:22px;color:#d4638a;font-weight:800;margin-bottom:30px;animation:gentlePulse 2.5s ease infinite; }
+        @keyframes gentlePulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+
+        .illust { width:180px;height:180px;margin:0 auto 18px; }
+        .illust svg { width:100%;height:100%; }
+
+        .btn-row { display:flex;gap:16px;justify-content:center;flex-wrap:wrap; }
+        .btn {
+            padding:14px 38px;border:none;border-radius:50px;font-size:17px;font-weight:700;
+            cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.25s ease;
+        }
+        .btn:active { transform:scale(0.97); }
+        .btn-pink { background:linear-gradient(135deg,#f8a4c0,#e8789a);color:#fff;box-shadow:0 5px 18px rgba(232,120,154,0.35); }
+        .btn-pink:hover { transform:translateY(-2px);box-shadow:0 8px 25px rgba(232,120,154,0.45); }
+        .btn-ghost { background:#fce4ec;color:#d4638a;border:2px solid #f5c2d0; }
+        .btn-ghost:hover { background:#f8d0dd; }
+        .btn-no { background:#f5c2d0;color:#c2536e; }
+        .btn-no:hover { transform:scale(0.96); }
+
+        .date-form { display:flex;flex-direction:column;gap:14px;text-align:left;margin-bottom:25px; }
+        .date-form label { font-size:14px;font-weight:700;color:#b0738c; }
+        .date-form input {
+            width:100%;padding:13px 16px;border:2px solid #f5d5e0;border-radius:14px;
+            font-size:15px;font-family:'Nunito',sans-serif;font-weight:600;color:#8c5a6e;
+            background:#fef6f9;outline:none;transition:border-color 0.3s;
+        }
+        .date-form input:focus { border-color:#e8789a; }
+        .date-form input::-webkit-calendar-picker-indicator { filter:hue-rotate(320deg) saturate(1.5);cursor:pointer; }
+
+        .food-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:25px; }
+        .food-card {
+            background:#fef6f9;border:2.5px solid #f5d5e0;border-radius:18px;padding:18px 10px 14px;
+            cursor:pointer;transition:all 0.25s ease;text-align:center;user-select:none;
+        }
+        .food-card:hover { border-color:#e8789a;background:#fce4ec;transform:translateY(-3px); }
+        .food-card.selected { border-color:#e8789a;background:linear-gradient(135deg,#fce4ec,#f8d0dd);box-shadow:0 4px 18px rgba(232,120,154,0.25);transform:translateY(-3px); }
+        .food-card .food-emoji { font-size:42px;display:block;margin-bottom:6px; }
+        .food-card .food-name { font-size:14px;font-weight:700;color:#b0738c; }
+
+        .premium-card {
+            background:#fff;border:3px solid #f5c2d0;border-radius:24px;padding:40px 30px;
+            max-width:420px;width:100%;text-align:center;position:relative;overflow:hidden;
+        }
+        .premium-badge {
+            position:absolute;top:16px;right:-30px;
+            background:linear-gradient(135deg,#f8a4c0,#e8789a);color:#fff;font-size:12px;
+            font-weight:800;padding:5px 40px;transform:rotate(45deg);letter-spacing:1px;
+        }
+        .premium-lock { font-size:80px;margin-bottom:12px;animation:lockBounce 2s ease infinite; }
+        @keyframes lockBounce { 0%,100%{transform:translateY(0) rotate(0)} 25%{transform:translateY(-8px) rotate(-5deg)} 75%{transform:translateY(-8px) rotate(5deg)} }
+        .premium-title { font-family:'Pacifico',cursive;font-size:24px;color:#d4638a;margin-bottom:10px; }
+        .premium-desc { font-size:15px;color:#b0738c;line-height:1.7;margin-bottom:20px; }
+        .premium-price { font-size:32px;font-weight:800;color:#e8789a;margin-bottom:6px; }
+        .premium-price-note { font-size:13px;color:#c4a0b0;margin-bottom:22px; }
+        .premium-features { text-align:left;margin-bottom:25px;padding:0 10px; }
+        .premium-features li { list-style:none;padding:8px 0;font-size:14px;color:#8c5a6e;border-bottom:1px solid #fce4ec; }
+        .premium-features li::before { content:'🔒 '; }
+        .premium-features li:last-child { border:none; }
+        .unlock-input {
+            width:100%;padding:13px 16px;border:2px solid #f5d5e0;border-radius:14px;
+            font-size:15px;font-family:'Nunito',sans-serif;font-weight:600;color:#8c5a6e;
+            background:#fef6f9;outline:none;text-align:center;margin-bottom:16px;
+        }
+        .unlock-input:focus { border-color:#e8789a; }
+        .unlock-input.shake { animation:inputShake 0.4s ease;border-color:#e57373 !important; }
+        @keyframes inputShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+        .unlock-error { font-size:13px;color:#e57373;margin-bottom:10px;display:none; }
+
+        /* ===== FINAL PAGE ===== */
+        .final-page { padding-bottom:40px; overflow-y:auto; align-items:flex-start; }
+        .final-wrapper { max-width:520px;width:100%;margin:0 auto; }
+
+        .final-illustration {
+            width:220px;height:220px;margin:0 auto 20px;
+            animation:floatIllustration 3s ease-in-out infinite;
+        }
+        @keyframes floatIllustration { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+        /* Pulsing heart SVG overlay */
+        .heart-pulse {
+            position:absolute;top:50%;left:50%;
+            transform:translate(-50%,-60%);
+            width:50px;height:50px;
+            animation:heartBeat 1.2s ease-in-out infinite;
+            filter:drop-shadow(0 0 12px rgba(232,120,154,0.6));
+        }
+        @keyframes heartBeat {
+            0%   { transform:translate(-50%,-60%) scale(1); }
+            15%  { transform:translate(-50%,-60%) scale(1.25); }
+            30%  { transform:translate(-50%,-60%) scale(1); }
+            45%  { transform:translate(-50%,-60%) scale(1.15); }
+            60%  { transform:translate(-50%,-60%) scale(1); }
+            100% { transform:translate(-50%,-60%) scale(1); }
+        }
+        .heart-pulse svg {
+            width:100%;height:100%;
+            filter:drop-shadow(0 2px 6px rgba(232,120,154,0.5));
+        }
+
+        .final-badge {
+            display:inline-block;
+            background:linear-gradient(135deg,#f8a4c0,#e8789a);
+            color:#fff;padding:6px 22px;border-radius:50px;font-size:13px;font-weight:800;
+            letter-spacing:1px;margin-bottom:14px;text-transform:uppercase;
+        }
+        .final-title { font-family:'Pacifico',cursive;font-size:36px;color:#d4638a;margin-bottom:8px; }
+        .final-sub { font-size:16px;color:#b0738c;font-weight:600;margin-bottom:24px;line-height:1.7; }
+
+        /* Countdown */
+        .countdown-section {
+            background:#fff;border-radius:22px;padding:24px 20px;margin-bottom:20px;
+            box-shadow:0 6px 25px rgba(219,112,147,0.12);
+        }
+        .countdown-label { font-size:14px;color:#b0738c;font-weight:700;margin-bottom:14px; }
+        .countdown-boxes { display:flex;justify-content:center;gap:12px;flex-wrap:wrap; }
+        .countdown-box {
+            background:linear-gradient(135deg,#fce4ec,#f8d0dd);border-radius:16px;
+            padding:14px 16px;min-width:70px;box-shadow:0 3px 12px rgba(232,120,154,0.15);
+        }
+        .countdown-num { font-size:28px;font-weight:800;color:#e8789a;display:block; }
+        .countdown-unit { font-size:11px;color:#b0738c;font-weight:700;text-transform:uppercase;letter-spacing:0.5px; }
+
+        /* Date details card */
+        .date-detail-card {
+            background:#fff;border-radius:22px;padding:24px;margin-bottom:20px;
+            box-shadow:0 6px 25px rgba(219,112,147,0.12);text-align:left;
+        }
+        .date-detail-card h3 { font-family:'Pacifico',cursive;font-size:20px;color:#d4638a;margin-bottom:14px;text-align:center; }
+        .detail-row {
+            display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #fce4ec;
+        }
+        .detail-row:last-child { border:none; }
+        .detail-icon { font-size:28px;width:40px;text-align:center;flex-shrink:0; }
+        .detail-text { font-size:15px;color:#8c5a6e;font-weight:600; }
+        .detail-text strong { color:#d4638a; }
+
+        /* Love letter */
+        .love-letter-section { margin-bottom:20px; }
+        .letter-toggle {
+            background:none;border:2px solid #f5c2d0;border-radius:50px;padding:10px 24px;
+            font-size:15px;font-weight:700;color:#d4638a;cursor:pointer;font-family:'Nunito',sans-serif;
+            transition:all 0.25s ease;display:inline-flex;align-items:center;gap:8px;
+        }
+        .letter-toggle:hover { background:#fce4ec;border-color:#e8789a; }
+        .letter-content {
+            display:none;margin-top:16px;background:#fff;border-radius:22px;padding:28px;
+            box-shadow:0 6px 25px rgba(219,112,147,0.12);text-align:left;
+            animation:letterOpen 0.5s ease;
+        }
+        .letter-content.open { display:block; }
+        @keyframes letterOpen {
+            0% { opacity:0;transform:translateY(20px) scale(0.95); }
+            100% { opacity:1;transform:translateY(0) scale(1); }
+        }
+        .letter-content .letter-header {
+            text-align:center;margin-bottom:14px;
+        }
+        .letter-content .letter-body {
+            font-size:15px;color:#8c5a6e;line-height:1.9;font-style:italic;
+            border-left:3px solid #f5c2d0;padding-left:16px;
+        }
+        .letter-content .letter-body p { margin-bottom:10px; }
+        .letter-content .letter-sign {
+            text-align:right;margin-top:16px;font-family:'Pacifico',cursive;font-size:18px;color:#d4638a;
+        }
+
+        /* Kiss button */
+        .kiss-section { margin-bottom:20px; }
+        .kiss-btn {
+            background:linear-gradient(135deg,#fce4ec,#f8d0dd);border:2.5px solid #f5c2d0;
+            border-radius:50px;padding:12px 28px;font-size:16px;font-weight:700;color:#d4638a;
+            cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.25s ease;
+            display:inline-flex;align-items:center;gap:8px;
+        }
+        .kiss-btn:hover { transform:scale(1.05);border-color:#e8789a;background:#f8d0dd; }
+        .kiss-btn:active { transform:scale(0.97); }
+        .kiss-counter { font-size:13px;color:#b0738c;margin-top:8px; }
+        .floating-kiss {
+            position:absolute;pointer-events:none;z-index:999;
+            animation:kissFloat 1.5s ease forwards;
+        }
+        @keyframes kissFloat {
+            0% { opacity:1;transform:translateY(0) scale(1) rotate(0); }
+            100% { opacity:0;transform:translateY(-120px) scale(0.3) rotate(25deg); }
+        }
+
+        /* Standalone blinking heart decoration */
+        .blink-heart {
+            display:inline-block;
+            animation:blinkHeart 1.2s ease-in-out infinite;
+            filter:drop-shadow(0 0 8px rgba(232,120,154,0.5));
+        }
+        @keyframes blinkHeart {
+            0%   { transform:scale(1); }
+            15%  { transform:scale(1.3); }
+            30%  { transform:scale(1); }
+            45%  { transform:scale(1.2); }
+            60%  { transform:scale(1); }
+            100% { transform:scale(1); }
+        }
+
+        /* Footer */
+        .final-footer {
+            text-align:center;padding:16px;font-size:13px;color:#d4b0c0;
+        }
+        .final-footer span { color:#e8789a; }
+
+        .confetti { position:fixed;z-index:999;pointer-events:none;animation:confettiFall linear forwards; }
+        @keyframes confettiFall {
+            0% { transform:translateY(-10vh) rotate(0);opacity:1; }
+            100% { transform:translateY(110vh) rotate(720deg);opacity:0; }
+        }
+
+        /* ===== Touch-friendly & Mobile ===== */
+        * { -webkit-tap-highlight-color: transparent; -webkit-user-select:none; user-select:none; }
+        button, input, .letter-body, .detail-text { -webkit-user-select:text; user-select:text; }
+        input { -webkit-touch-callout: none; }
+
+        /* Safe area for iPhone notch */
+        .page { padding-top: max(30px, env(safe-area-inset-top)); padding-bottom: max(30px, env(safe-area-inset-bottom)); }
+
+        /* Food grid: 3 cols on wider phones */
+        @media (min-width: 400px) { .food-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        @media (max-width: 500px) {
+            .card, .premium-card { padding: 30px 18px; border-radius: 22px; }
+            .card-title { font-size: 22px; margin-bottom: 6px; }
+            .card-subtitle { font-size: 13px; margin-bottom: 4px; }
+            .card-msg { font-size: 12.5px; margin-bottom: 20px; line-height: 1.6; }
+            .card-question { font-size: 16px; margin-bottom: 22px; }
+            .btn { padding: 12px 28px; font-size: 14px; border-radius: 40px; }
+            .btn-row { gap: 12px; }
+            .illust { width: 120px; height: 120px; margin-bottom: 12px; }
+            .final-illustration { width: 160px; height: 160px; }
+            .heart-pulse { width: 36px; height: 36px; }
+            .final-badge { font-size: 11px; padding: 5px 16px; }
+            .final-title { font-size: 24px; margin-bottom: 6px; }
+            .final-sub { font-size: 13px; margin-bottom: 18px; }
+            .countdown-section { padding: 18px 14px; border-radius: 18px; }
+            .countdown-label { font-size: 13px; margin-bottom: 10px; }
+            .countdown-boxes { gap: 6px; }
+            .countdown-box { min-width: 60px; padding: 10px 8px; border-radius: 14px; }
+            .countdown-num { font-size: 22px; }
+            .countdown-unit { font-size: 9px; }
+            .date-detail-card { padding: 16px 14px; border-radius: 18px; }
+            .date-detail-card h3 { font-size: 17px; margin-bottom: 10px; }
+            .detail-row { gap: 8px; padding: 8px 0; }
+            .detail-icon { font-size: 22px; width: 30px; }
+            .detail-text { font-size: 12.5px; }
+            .letter-toggle { font-size: 13px; padding: 9px 18px; border-radius: 40px; }
+            .letter-content { padding: 18px 14px; border-radius: 18px; }
+            .letter-body { font-size: 13px; line-height: 1.8; }
+            .letter-sign { font-size: 16px; }
+            .kiss-btn { padding: 10px 20px; font-size: 13px; border-radius: 40px; }
+            .kiss-counter { font-size: 12px; }
+            .premium-card { padding: 28px 16px; }
+            .premium-badge { font-size: 10px; padding: 4px 35px; top: 12px; }
+            .premium-lock { font-size: 52px; margin-bottom: 8px; }
+            .premium-title { font-size: 18px; }
+            .premium-desc { font-size: 13px; margin-bottom: 14px; }
+            .premium-price { font-size: 24px; }
+            .premium-price-note { font-size: 12px; margin-bottom: 16px; }
+            .premium-features li { font-size: 12px; padding: 5px 0; }
+            .unlock-input { font-size: 14px; padding: 11px 14px; }
+            .food-card { padding: 12px 6px 8px; border-radius: 14px; }
+            .food-card .food-emoji { font-size: 30px; margin-bottom: 4px; }
+            .food-card .food-name { font-size: 11px; }
+            .food-grid { gap: 8px; }
+            .date-form { gap: 10px; margin-bottom: 20px; }
+            .date-form input { padding: 11px 14px; font-size: 14px; }
+            .date-form label { font-size: 13px; }
+            .final-footer { font-size: 12px; padding: 12px; }
+        }
+
+        @media (max-width: 350px) {
+            .card { padding: 22px 14px; }
+            .card-title { font-size: 19px; }
+            .card-question { font-size: 14px; }
+            .illust { width: 100px; height: 100px; }
+            .food-grid { gap: 6px; }
+            .btn { padding: 10px 22px; font-size: 13px; }
+            .final-illustration { width: 130px; height: 130px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-deco" id="bgDeco"></div>
+
+<!-- ===== PAGE 1: The Question ===== -->
+<div class="page active" id="page1">
+    <div class="card">
+        <div class="illust" id="illust1"></div>
+        <div class="card-title">Hey My Love!</div>
+        <div class="card-subtitle">I've been wanting to tell you something...</div>
+        <div class="card-msg">
+            Since the day we met, I can't stop thinking about you 😊<br>
+            I want to take you on a real date 💕
+        </div>
+        <div class="card-question"><span class="blink-heart">💖</span> Will you go on a date with me? <span class="blink-heart">💖</span></div>
+        <div class="btn-row">
+            <button class="btn btn-pink" id="btnYes" onclick="goPage(2)">Yes! 💕</button>
+            <button class="btn btn-no" id="btnNo" onmouseenter="runAway()" ontouchstart="runAway()" onclick="runAway()">No 😢</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 2: Pick a Date ===== -->
+<div class="page" id="page2">
+    <div class="card">
+        <div class="illust" id="illust2"></div>
+        <div class="card-title">Pick Our Date!</div>
+        <div class="card-subtitle">When do you want to go out? 🥰</div>
+        <div class="card-msg">Choose your perfect date & time below!</div>
+        <div class="date-form">
+            <label>📆 Date</label>
+            <input type="date" id="inputDate">
+            <label>⏰ Time</label>
+            <input type="time" id="inputTime">
+            <label>📍 Place (optional)</label>
+            <input type="text" id="inputPlace" placeholder="That cute cafe downtown...">
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-pink" onclick="validateDate()">Continue 💖</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 3: Pick Food ===== -->
+<div class="page" id="page3">
+    <div class="card">
+        <div class="illust" id="illust3"></div>
+        <div class="card-title">What Should We Eat?</div>
+        <div class="card-subtitle">Pick your cravings! 🍽️</div>
+        <div class="card-msg">Choose whatever you want, I'm paying 😎</div>
+        <div class="food-grid" id="foodGrid">
+            <div class="food-card" onclick="pickFood(this)" data-food="Pizza 🍕"><span class="food-emoji">🍕</span><span class="food-name">Pizza</span></div>
+            <div class="food-card" onclick="pickFood(this)" data-food="Sushi 🍣"><span class="food-emoji">🍣</span><span class="food-name">Sushi</span></div>
+            <div class="food-card" onclick="pickFood(this)" data-food="Burger 🍔"><span class="food-emoji">🍔</span><span class="food-name">Burger</span></div>
+            <div class="food-card" onclick="pickFood(this)" data-food="Noodles 🍜"><span class="food-emoji">🍜</span><span class="food-name">Noodles</span></div>
+            <div class="food-card" onclick="pickFood(this)" data-food="Fried Chicken 🍗"><span class="food-emoji">🍗</span><span class="food-name">Fried Chicken</span></div>
+            <div class="food-card" onclick="pickFood(this)" data-food="Desserts 🍰"><span class="food-emoji">🍰</span><span class="food-name">Desserts</span></div>
+            <div class="food-card" onclick="pickFood(this)" data-food="Tacos 🌮"><span class="food-emoji">🌮</span><span class="food-name">Tacos</span></div>
+            <div class="food-card" onclick="pickFood(this)" data-food="Coffee ☕"><span class="food-emoji">☕</span><span class="food-name">Coffee</span></div>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="goPage(2)">← Back</button>
+            <button class="btn btn-pink" onclick="validateFood()">Continue 💖</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 4: Premium Unlock (TROLL) ===== -->
+<div class="page" id="page4">
+    <div class="premium-card">
+        <div class="premium-badge">PREMIUM</div>
+        <div class="premium-lock">🔒</div>
+        <div class="premium-title">Oops! Premium Required</div>
+        <div class="premium-desc">To confirm this date, you need to unlock the <strong>Premium Girlfriend Package™</strong></div>
+        <div class="premium-price">$99.99</div>
+        <div class="premium-price-note">one-time payment, no refund 🙃</div>
+        <ul class="premium-features">
+            <li>Unlimited cute messages</li>
+            <li>Free hand-holding pass</li>
+            <li>Exclusive goodnight calls</li>
+            <li>Priority kiss-on-the-cheek</li>
+            <li>VIP access to my heart</li>
+        </ul>
+        <input class="unlock-input" id="unlockInput" type="text" placeholder="Enter promo code..." autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="unlock-error" id="unlockError"></div>
+        <div id="hintArea" style="margin-bottom:14px;">
+            <button onclick="showHint()" style="background:none;border:none;cursor:pointer;font-size:13px;color:#c4a0b0;text-decoration:underline;font-family:Nunito,sans-serif;">💡 Need a hint?</button>
+            <div id="hintText" style="font-size:13px;color:#b0738c;margin-top:6px;display:none;">It starts with <strong>'i'</strong> and ends with <strong>'you'</strong> 💕</div>
+        </div>
+        <div class="btn-row" style="flex-direction:column;align-items:center;gap:10px;">
+            <button class="btn btn-pink" onclick="tryUnlock()">Unlock Now 🔓</button>
+            <button class="btn btn-ghost" onclick="goPage(3)" style="font-size:13px;padding:10px 24px;">← I'm too broke</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 5: Final ===== -->
+<div class="page final-page" id="page5">
+    <div class="final-wrapper">
+        <!-- SVG Illustration: Cute couple scene -->
+        <div class="final-illustration" id="finalIllust" style="position:relative;">
+            <!-- Pulsing heart overlay (CSS animated) -->
+            <div class="heart-pulse">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 88 C50 88 10 60 10 35 C10 18 25 8 50 30 C75 8 90 18 90 35 C90 60 50 88 50 88Z"
+                          fill="#e8789a" stroke="#d4638a" stroke-width="2"/>
+                </svg>
+            </div>
+        </div>
+
+        <div style="text-align:center;">
+            <div class="final-badge">✨ Date Confirmed ✨</div>
+            <div class="final-title">It's Official!</div>
+            <div class="final-sub">
+                Promo code accepted! Your "payment" was your love 💕<br>
+                I can't wait to see you!
+            </div>
+        </div>
+
+        <!-- Countdown -->
+        <div class="countdown-section" id="countdownSection">
+            <div class="countdown-label" style="text-align:center;">⏳ Countdown to our date</div>
+            <div class="countdown-boxes" id="countdownBoxes">
+                <div class="countdown-box"><span class="countdown-num" id="cdDays">--</span><span class="countdown-unit">Days</span></div>
+                <div class="countdown-box"><span class="countdown-num" id="cdHours">--</span><span class="countdown-unit">Hours</span></div>
+                <div class="countdown-box"><span class="countdown-num" id="cdMins">--</span><span class="countdown-unit">Mins</span></div>
+                <div class="countdown-box"><span class="countdown-num" id="cdSecs">--</span><span class="countdown-unit">Secs</span></div>
+            </div>
+        </div>
+
+        <!-- Date Details -->
+        <div class="date-detail-card">
+            <h3>📋 Our Date Plan</h3>
+            <div class="detail-row"><span class="detail-icon">📆</span><div class="detail-text" id="dDate"></div></div>
+            <div class="detail-row"><span class="detail-icon">⏰</span><div class="detail-text" id="dTime"></div></div>
+            <div class="detail-row"><span class="detail-icon">📍</span><div class="detail-text" id="dPlace"></div></div>
+            <div class="detail-row"><span class="detail-icon">🍽️</span><div class="detail-text" id="dFood"></div></div>
+        </div>
+
+        <!-- Love Letter -->
+        <div class="love-letter-section" style="text-align:center;">
+            <button class="letter-toggle" id="letterToggle" onclick="toggleLetter()">💌 Open Love Letter</button>
+            <div class="letter-content" id="letterContent">
+                <div class="letter-header">
+                    <svg width="40" height="40" viewBox="0 0 40 40"><text x="20" y="32" text-anchor="middle" font-size="32">💌</text></svg>
+                </div>
+                <div class="letter-body">
+                    <p>My Dearest,</p>
+                    <p>I know this is just a website, but every pixel here was made with my heart for you. From the moment I met you, my world became brighter, warmer, and so much more beautiful.</p>
+                    <p>I promise to hold your hand when you're scared, to make you laugh when you're sad, and to always be there for you — through every moment, every adventure, every little thing.</p>
+                    <p>This date is just the beginning of our story. I can't wait to write every page with you. 💕</p>
+                </div>
+                <div class="letter-sign">Forever yours 💖</div>
+            </div>
+        </div>
+
+        <!-- Send Kiss -->
+        <div class="kiss-section" style="text-align:center;">
+            <button class="kiss-btn" id="kissBtn" onclick="sendKiss()">💋 Send a Kiss</button>
+            <div class="kiss-counter" id="kissCounter">You've sent 0 kisses 💋</div>
+        </div>
+
+        <div class="final-footer">
+            Made with <span>💖</span> just for you
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ===== Background hearts ===== */
+    const decoEmojis = ['💖','💕','💗','💓','💝','🩷','✨','🌟','⭐','🎀'];
+    const bgEl = document.getElementById('bgDeco');
+    for (let i = 0; i < 25; i++) {
+        const s = document.createElement('span');
+        s.textContent = decoEmojis[Math.floor(Math.random() * decoEmojis.length)];
+        s.style.left = Math.random() * 100 + '%';
+        s.style.fontSize = (Math.random() * 16 + 14) + 'px';
+        s.style.animationDuration = (Math.random() * 10 + 8) + 's';
+        s.style.animationDelay = (Math.random() * 12) + 's';
+        bgEl.appendChild(s);
+    }
+
+    /* ===== SVG Illustrations ===== */
+    document.getElementById('illust1').innerHTML = `
+        <svg viewBox="0 0 180 180" fill="none">
+            <circle cx="90" cy="90" r="85" fill="#fef0f4" stroke="#f5c2d0" stroke-width="2"/>
+            <circle cx="90" cy="72" r="32" fill="#fce4ec"/>
+            <circle cx="78" cy="68" r="4" fill="#d4638a"/>
+            <circle cx="102" cy="68" r="4" fill="#d4638a"/>
+            <path d="M84 78 Q90 86 96 78" stroke="#d4638a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="72" cy="75" r="6" fill="#f8bbd9" opacity="0.5"/>
+            <circle cx="108" cy="75" r="6" fill="#f8bbd9" opacity="0.5"/>
+            <rect x="62" y="100" width="56" height="35" rx="16" fill="#f8a4c0"/>
+            <text x="90" y="123" text-anchor="middle" font-size="18" fill="#fff" font-weight="bold">LOVE</text>
+            <text x="58" y="45" font-size="20">💌</text>
+            <text x="110" y="42" font-size="16">💕</text>
+            <text x="35" y="110" font-size="14">✨</text>
+            <text x="135" y="108" font-size="14">✨</text>
+        </svg>`;
+
+    document.getElementById('illust2').innerHTML = `
+        <svg viewBox="0 0 180 180" fill="none">
+            <circle cx="90" cy="90" r="85" fill="#fef0f4" stroke="#f5c2d0" stroke-width="2"/>
+            <rect x="50" y="35" width="80" height="110" rx="12" fill="#fff" stroke="#f5c2d0" stroke-width="2"/>
+            <rect x="50" y="35" width="80" height="30" rx="12" fill="#f8a4c0"/>
+            <text x="90" y="55" text-anchor="middle" font-size="14" fill="#fff" font-weight="bold">📅 SEP</text>
+            <text x="90" y="100" text-anchor="middle" font-size="36" fill="#d4638a" font-weight="bold">14</text>
+            <text x="90" y="120" text-anchor="middle" font-size="12" fill="#b0738c">Sunday</text>
+            <circle cx="70" cy="130" r="3" fill="#f8a4c0"/>
+            <circle cx="90" cy="130" r="3" fill="#e8789a"/>
+            <circle cx="110" cy="130" r="3" fill="#f8a4c0"/>
+        </svg>`;
+
+    document.getElementById('illust3').innerHTML = `
+        <svg viewBox="0 0 180 180" fill="none">
+            <circle cx="90" cy="90" r="85" fill="#fef0f4" stroke="#f5c2d0" stroke-width="2"/>
+            <circle cx="90" cy="80" r="45" fill="#fce4ec" stroke="#f5c2d0" stroke-width="1.5"/>
+            <text x="90" y="75" text-anchor="middle" font-size="30">🍽️</text>
+            <text x="55" y="115" font-size="22">🍕</text>
+            <text x="105" y="115" font-size="22">🍣</text>
+            <text x="78" y="135" font-size="22">🍰</text>
+        </svg>`;
+
+    /* ===== Final page SVG: cute couple under stars ===== */
+    document.getElementById('finalIllust').querySelector('svg') || (document.getElementById('finalIllust').insertAdjacentHTML('afterbegin', ''));
+    document.getElementById('finalIllust').insertAdjacentHTML('afterbegin', `
+        <svg viewBox="0 0 220 220" fill="none" style="position:relative;z-index:1;">
+            <defs>
+                <radialGradient id="glow" cx="50%" cy="40%" r="50%">
+                    <stop offset="0%" stop-color="#fce4ec"/>
+                    <stop offset="100%" stop-color="#fef0f4"/>
+                </radialGradient>
+            </defs>
+            <circle cx="110" cy="110" r="105" fill="url(#glow)" stroke="#f5c2d0" stroke-width="2"/>
+            <!-- Twinkling stars -->
+            <circle cx="45" cy="35" r="2.5" fill="#f8a4c0" opacity="0.7">
+                <animate attributeName="opacity" values="0.7;0.2;0.7" dur="1.8s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="170" cy="45" r="2" fill="#e8789a" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="155" cy="30" r="3" fill="#f8a4c0" opacity="0.5">
+                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="35" cy="65" r="2" fill="#f5c2d0" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;0.15;0.6" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="180" cy="75" r="2.5" fill="#f8a4c0" opacity="0.5">
+                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.7s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="60" cy="22" r="1.8" fill="#e8789a" opacity="0.4">
+                <animate attributeName="opacity" values="0.4;0.1;0.4" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="190" cy="60" r="1.5" fill="#f5c2d0" opacity="0.5">
+                <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.9s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Moon -->
+            <circle cx="170" cy="40" r="14" fill="#f8a4c0" opacity="0.3"/>
+            <circle cx="176" cy="36" r="12" fill="url(#glow)"/>
+            <!-- Ground -->
+            <ellipse cx="110" cy="185" rx="75" ry="12" fill="#fce4ec" opacity="0.6"/>
+            <!-- Left person (him) -->
+            <circle cx="85" cy="110" r="18" fill="#fce4ec" stroke="#d4638a" stroke-width="1.5"/>
+            <circle cx="79" cy="107" r="2.5" fill="#d4638a"/>
+            <circle cx="91" cy="107" r="2.5" fill="#d4638a"/>
+            <path d="M81 115 Q85 120 89 115" stroke="#d4638a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <circle cx="75" cy="113" r="4" fill="#f8bbd9" opacity="0.4"/>
+            <circle cx="95" cy="113" r="4" fill="#f8bbd9" opacity="0.4"/>
+            <rect x="74" y="128" width="22" height="30" rx="10" fill="#e8789a" opacity="0.8"/>
+            <!-- Right person (her) -->
+            <circle cx="135" cy="110" r="18" fill="#fce4ec" stroke="#d4638a" stroke-width="1.5"/>
+            <circle cx="129" cy="107" r="2.5" fill="#d4638a"/>
+            <circle cx="141" cy="107" r="2.5" fill="#d4638a"/>
+            <path d="M131 115 Q135 120 139 115" stroke="#d4638a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <circle cx="125" cy="113" r="4" fill="#f8bbd9" opacity="0.4"/>
+            <circle cx="145" cy="113" r="4" fill="#f8bbd9" opacity="0.4"/>
+            <rect x="124" y="128" width="22" height="30" rx="10" fill="#f8a4c0" opacity="0.8"/>
+            <!-- Hair for her -->
+            <path d="M120 105 Q120 90 130 88 Q140 86 145 95" stroke="#c2536e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Holding hands -->
+            <path d="M96 145 Q110 155 124 145" stroke="#d4638a" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Small floating hearts (CSS animated via class) -->
+            <text x="50" y="55" font-size="12" opacity="0.6">💕</text>
+            <text x="160" y="65" font-size="10" opacity="0.5">💗</text>
+            <text x="40" y="90" font-size="9" opacity="0.4">✨</text>
+            <text x="175" y="100" font-size="9" opacity="0.4">✨</text>
+        </svg>`);
+
+    /* ===== Page navigation ===== */
+    let selectedDateISO = '';
+    function goPage(n) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page' + n).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (n === 5) {
+            createConfetti();
+            for (let i = 1; i <= 6; i++) setTimeout(createConfetti, i * 400);
+            startCountdown();
+        }
+    }
+
+    /* ===== No button ===== */
+    let noCount = 0;
+    const noMsgs = [
+        "Try again 😏","Nice try! 😜","Are you sure? 🤔",
+        "Just hit Yes! 🥺","No = Forever alone 😱","That hurts! 😢",
+        "Yes and I'll buy you gifts 🎁","I'll cry! 😭",
+        "Don't break my heart 💔","Yes = free food! 🍕"
+    ];
+    function runAway() {
+        const btn = document.getElementById('btnNo');
+        const card = btn.closest('.card');
+        const r = card.getBoundingClientRect();
+        btn.style.position = 'absolute';
+        btn.style.left = Math.random() * (r.width - 90) + 'px';
+        btn.style.top  = Math.random() * (r.height - 45) + 'px';
+        btn.style.transition = 'all 0.3s ease';
+        noCount++;
+        document.querySelector('.card-question').textContent =
+            noCount < noMsgs.length ? noMsgs[noCount] : "Just hit Yes, I'm out of ideas 😵";
+        const y = document.getElementById('btnYes');
+        y.style.fontSize = (parseFloat(getComputedStyle(y).fontSize) + 2) + 'px';
+        y.style.padding = '16px 46px';
+    }
+
+    /* ===== Date page ===== */
+    (function() {
+        const d = new Date();
+        document.getElementById('inputDate').min =
+            d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    })();
+
+    function validateDate() {
+        if (!document.getElementById('inputDate').value) {
+            document.getElementById('inputDate').style.borderColor = '#e57373';
+            document.getElementById('inputDate').focus();
+            return;
+        }
+        selectedDateISO = document.getElementById('inputDate').value;
+        goPage(3);
+    }
+
+    /* ===== Food page ===== */
+    let selectedFood = '';
+    function pickFood(el) {
+        document.querySelectorAll('.food-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedFood = el.dataset.food;
+    }
+    function validateFood() {
+        if (!selectedFood) {
+            document.querySelectorAll('.food-card').forEach(c => {
+                c.style.borderColor = '#e57373';
+                setTimeout(() => c.style.borderColor = '', 600);
+            });
+            return;
+        }
+        goPage(4);
+    }
+
+    /* ===== Premium unlock ===== */
+    const PROMO = 'iloveyou';
+    let attempts = 0;
+    function showHint() {
+        const ht = document.getElementById('hintText');
+        ht.style.display = 'block';
+        ht.style.animation = 'pageIn 0.3s ease';
+    }
+
+    function tryUnlock() {
+        const val = document.getElementById('unlockInput').value.trim().toLowerCase();
+        const err = document.getElementById('unlockError');
+        if (val === PROMO) {
+            const dateObj = new Date(selectedDateISO + 'T00:00:00');
+            const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+            document.getElementById('dDate').innerHTML = '<strong>' + dateObj.toLocaleDateString('en-US', opts) + '</strong>';
+            const tv = document.getElementById('inputTime').value;
+            if (tv) {
+                let [h,m] = tv.split(':');
+                const hr = parseInt(h), ap = hr >= 12 ? 'PM' : 'AM';
+                document.getElementById('dTime').innerHTML = '<strong>' + (hr%12||12) + ':' + m + ' ' + ap + '</strong>';
+            } else {
+                document.getElementById('dTime').innerHTML = '<strong>Time TBD</strong>';
+            }
+            const pl = document.getElementById('inputPlace').value.trim();
+            document.getElementById('dPlace').innerHTML = pl ? '<strong>' + pl + '</strong>' : '<strong>Surprise location!</strong>';
+            document.getElementById('dFood').innerHTML = '<strong>' + selectedFood + '</strong>';
+            goPage(5);
+        } else {
+            attempts++;
+            err.style.display = 'block';
+            const variations = [
+                "❌ Wrong code! Try harder 😤",
+                "❌ Still wrong! Think romantic 💭",
+                "❌ Nope! What did I just say to you? 🥺",
+                "❌ Almost... the answer is LOVE 💖",
+                "❌ Hint: 9 letters, 'i_____you' 💕",
+                "❌ Fine... type: iloveyou 💗"
+            ];
+            err.textContent = variations[Math.min(attempts, variations.length - 1)];
+            document.getElementById('unlockInput').value = '';
+            const inp = document.getElementById('unlockInput');
+            inp.classList.remove('shake');
+            void inp.offsetWidth;
+            inp.classList.add('shake');
+            setTimeout(() => inp.classList.remove('shake'), 500);
+        }
+    }
+    document.getElementById('unlockInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
+
+    /* ===== Countdown ===== */
+    let countdownInterval = null;
+    function startCountdown() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        const target = new Date(selectedDateISO + 'T00:00:00').getTime();
+        function update() {
+            const now = Date.now();
+            let diff = target - now;
+            if (diff <= 0) {
+                document.getElementById('cdDays').textContent = '0';
+                document.getElementById('cdHours').textContent = '0';
+                document.getElementById('cdMins').textContent = '0';
+                document.getElementById('cdSecs').textContent = '0';
+                clearInterval(countdownInterval);
+                document.querySelector('.countdown-label').textContent = "🎉 It's today! Get ready!";
+                return;
+            }
+            const days = Math.floor(diff / 86400000); diff %= 86400000;
+            const hours = Math.floor(diff / 3600000); diff %= 3600000;
+            const mins = Math.floor(diff / 60000); diff %= 60000;
+            const secs = Math.floor(diff / 1000);
+            document.getElementById('cdDays').textContent = days;
+            document.getElementById('cdHours').textContent = hours;
+            document.getElementById('cdMins').textContent = mins;
+            document.getElementById('cdSecs').textContent = secs;
+        }
+        update();
+        countdownInterval = setInterval(update, 1000);
+    }
+
+    /* ===== Love letter toggle ===== */
+    function toggleLetter() {
+        const lc = document.getElementById('letterContent');
+        const btn = document.getElementById('letterToggle');
+        if (lc.classList.contains('open')) {
+            lc.classList.remove('open');
+            btn.textContent = '💌 Open Love Letter';
+        } else {
+            lc.classList.add('open');
+            btn.textContent = '💌 Close Letter';
+        }
+    }
+
+    /* ===== Send kiss ===== */
+    let kissCount = 0;
+    function sendKiss() {
+        kissCount++;
+        document.getElementById('kissCounter').textContent = "You've sent " + kissCount + " kisses 💋";
+
+        // Multiple floating kisses
+        const btnRect = document.getElementById('kissBtn').getBoundingClientRect();
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                const kiss = document.createElement('div');
+                kiss.className = 'floating-kiss';
+                kiss.textContent = '💋';
+                kiss.style.fontSize = (Math.random() * 18 + 18) + 'px';
+                kiss.style.position = 'fixed';
+                kiss.style.left = (btnRect.left + Math.random() * btnRect.width) + 'px';
+                kiss.style.top = btnRect.top + 'px';
+                document.body.appendChild(kiss);
+                setTimeout(() => kiss.remove(), 1500);
+            }, i * 150);
+        }
+
+        // Button pulse
+        const btn = document.getElementById('kissBtn');
+        btn.style.transform = 'scale(1.15)';
+        setTimeout(() => btn.style.transform = '', 200);
+    }
+
+    /* ===== Confetti ===== */
+    function createConfetti() {
+        const items = ['💖','💕','💗','💓','💝','🎀','🎁','🎊','✨','🌟','🩷'];
+        for (let i = 0; i < 45; i++) {
+            setTimeout(() => {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.textContent = items[Math.floor(Math.random() * items.length)];
+                c.style.left = Math.random() * 100 + '%';
+                c.style.fontSize = (Math.random() * 14 + 10) + 'px';
+                c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                c.style.animationDelay = Math.random() * 0.4 + 's';
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 5000);
+            }, i * 40);
+        }
+    }
+
+    /* ===== Mouse trail (desktop + mobile touch) ===== */
+    document.addEventListener('mousemove', (e) => {
+        if (Math.random() > 0.93) spawnHeart(e.clientX, e.clientY);
+    });
+    document.addEventListener('touchmove', (e) => {
+        if (Math.random() > 0.85) {
+            const t = e.touches[0];
+            spawnHeart(t.clientX, t.clientY);
+        }
+    }, { passive: true });
+    function spawnHeart(x, y) {
+        const h = document.createElement('div');
+        h.textContent = '💗';
+        h.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;font-size:12px;z-index:999;transition:all 1s ease;`;
+        document.body.appendChild(h);
+        setTimeout(() => { h.style.opacity='0'; h.style.transform='translateY(-25px) scale(0)'; }, 10);
+        setTimeout(() => h.remove(), 1000);
+    }
+</script>
+</body>
+</html>
